@@ -146,7 +146,7 @@ class   Calcu_HisData(object):
         _market=self._market#各股所在的市场，行情接口参数里需要
         self._dfOra_StkAda['RISE_DROP_RANGE']=pd.DataFrame()
         self._dfOra_StkAda['CLOSE_PRICE']=pd.DataFrame()
-        offset=1#下载前一交易日数据    
+        offset=0#下载前一交易日数据    
         for istk in range(0,len(_stkpool)):
             STK_CODE=_stkpool[istk]  
             OPEN_PRICE=[]
@@ -248,6 +248,7 @@ if   __name__ == '__main__':
                 demo.GetAllStkData()
                 demo.Save2Local()
 
-                iscau = True        
+                iscau = True      
+                print "over"
                 
         time.sleep(58)

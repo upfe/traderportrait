@@ -90,18 +90,20 @@ def getStkDict(market, type = 6):
 		return [] 
 
 
-def getjszbyuncaijing(stkcode):
-    newheaders = {'Accept':'application/json, text/javascript, */*; q=0.01',\
-    'Accept-Encoding':'gzip, deflate',\
+def getjszbyuncaijing(ip,stkcode):
+    newheaders = {'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',\
+    'Accept-Encoding':'gzip, deflate, br',\
     'Accept-Language':'zh-CN,zh;q=0.9',\
     'Cache-Control':'max-age=0',\
     'Connection':'keep-alive',\
     'Host': 'www.iwencai.com',
     'Upgrade-Insecure-Requests':'1',\
-    'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.84 Safari/537.36'}
+    'Cookie':'PHPSESSID=f7b7ff2d5a9ae7fe3a76f3db2bcaf66c; cid=f7b7ff2d5a9ae7fe3a76f3db2bcaf66c1514448199; ComputerID=f7b7ff2d5a9ae7fe3a76f3db2bcaf66c1514448199; other_uid=Ths_iwencai_Xuangu_0o3m0hu0f3t3q61ww0mdcpfaeiuif3d2; other_uname=gligfijej5; guideState=1; v=ArSxuQ8nUrMcXMZ_KUKL8cf-hXkijdh3GrFsu04VQD_CuVqvdp2oB2rBPEie',\
+    'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.84 Safari/537.36'
+    }
 
     session = requests.Session();
-
+    session.proxies = {"http": "{}".format(ip)}
     loginurl = "https://www.iwencai.com/diag/block-detail?pid=8073&codes={}&codeType=stock&info=%7B%22view%22%3A%7B%22nolazy%22%3A1%2C%22parseArr%22%3A%7B%22_v%22%3A%22new%22%2C%22dateRange%22%3A%5B%5D%2C%22staying%22%3A%5B%5D%2C%22queryCompare%22%3A%5B%5D%2C%22comparesOfIndex%22%3A%5B%5D%7D%2C%22asyncParams%22%3A%7B%22tid%22%3A137%7D%7D%7D".format(stkcode) #登录url
     num = 0
     stkshape = {}
@@ -117,20 +119,55 @@ def getjszbyuncaijing(stkcode):
             #data = json.loads(rsp)
             break# 登录
         except Exception, e:
+            time.sleep(2)
             print e
             num = num+1
+    num1 = 0
+    while num > 5:
+       print "开始歇息45秒"
+       time.sleep(45)
+       while num1 <=5:
+            try:
+                stkshape = session.get(loginurl,  headers = newheaders).json()["data"]["data"]["result"]["zxst"]
+                login_response1 = session.get(loginurl,  headers = newheaders).json()["data"]["data"]["result"]["buy"]
+                login_response2 = session.get(loginurl,  headers = newheaders).json()["data"]["data"]["result"]["sell"]
+                stktech=dict(login_response1, **login_response2)
+                #f = urlopen(loginurl, timeout = 5)
+                #rsp=f.read()
+                #data = json.loads(rsp)
+                break# 登录
+            except Exception, e:
+                time.sleep(2)
+                print e
+                num1 = num1+1 
+       break
     return stkshape,stktech
+
+def getIP():
+    ipurl = "http://webapi.http.zhimacangku.com/getip?num=1&type=1&pro=&city=0&yys=0&port=1&time=1&ts=0&ys=0&cs=0&lb=1&sb=0&pb=4&mr=1&regions="
+    f = urlopen(ipurl, timeout = 5)
+    rsp=f.read()[:-7]
+    return rsp
+
+
 
 
 stkpool = getStkDict(0, type = 6)
-TRD_DATE = "20180102"
+#idx = 0
+#ip = getIP()
+#stkcode = str(stkpool[idx]['sCode'])
+#stkshape,stktech = getjszbyuncaijing(ip,stkcode)
+
+
+TRD_DATE = "20180109"
 jdx = 0
 dfSnlTag = pd.DataFrame(columns =['STK_CODE','TRD_DATE','TAG_VALUE','TAG_CODE'])
 for idx in range(len(stkpool)):
     print idx
     stkcode = str(stkpool[idx]['sCode'])
     time.sleep(2)
-    stkshape,stktech = getjszbyuncaijing(stkcode)
+    ip = getIP()
+    stkshape,stktech = getjszbyuncaijing(ip,stkcode)
     
     for key in stkshape:
         if u'日线' in stkshape[key]["tag"]:

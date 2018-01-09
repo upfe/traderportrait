@@ -408,23 +408,24 @@ def insertdata(dfHqTag):
         insert2db(LabConnect,curLab ,"STK_TAG",TRD_DATE,STK_CODE, TAG_VALUE, TAG_CODE)
 
 
-TRD_DATE = "20180103"
-dfHqTag = getHqTag(TRD_DATE)
-insertdata(dfHqTag)   
+#TRD_DATE = "20180109"
+#dfHqTag = getHqTag(TRD_DATE)
+##insertdata(dfHqTag)   
 
-#if   __name__ == '__main__':
-#    lastCheckDay = 0
-#    logDate = 0
-#
-#    isdwn = False
-#    while True:        
-#        curtime = time.localtime(time.time())
-#        if (logDate != curtime.tm_mday):#新建当日的日志文件
-#            logDate = curtime.tm_mday
-#            iscau = False
-#        if (16*60+10 < time.localtime(time.time()).tm_hour*60+time.localtime(time.time()).tm_min < 23*60 + 45) & (not iscau):
-#            isTrade ,TRD_DATE, PreTrdDate = istrade(curtime) 
-#            if isTrade : 
-#                dfHqTag = getHqTag(TRD_DATE)
-#                insertdata(dfHqTag)                    
-#                iscau = True            
+if   __name__ == '__main__':
+    lastCheckDay = 0
+    logDate = 0
+
+    isdwn = False
+    while True:        
+        curtime = time.localtime(time.time())
+        if (logDate != curtime.tm_mday):#新建当日的日志文件
+            logDate = curtime.tm_mday
+            iscau = False
+        if (16*60+10 < time.localtime(time.time()).tm_hour*60+time.localtime(time.time()).tm_min < 23*60 + 45) & (not iscau):
+            isTrade ,TRD_DATE, PreTrdDate = istrade(curtime) 
+            if isTrade : 
+                dfHqTag = getHqTag(TRD_DATE)
+                insertdata(dfHqTag)                    
+                iscau = True  
+        time.sleep(58)
